@@ -28,7 +28,9 @@
 	 ; 
 	 ; @functions:
 	 ;     printfb ARGS: <SI = String>
+	 ;	   printfbln ARGS: <SI = String>
 	 ;	   clearscreen
+	 ;	   print_new_line
 	 ;--------------------------------------
 	 %include "stdiobios.inc" 
 	 
@@ -58,8 +60,8 @@
 ;----------------------------------------------
 
 FirstMessageExecution : db "Stage 1 Bootloader Executing .  .  .", 0
-SecondStageBootloaderFinished : db "Finished Loading Second Stage Bootloader !", 0
-SecondStageBootloaderStart : db "Starting to  Loading Second Stage Bootloader !", 0
+SecondStageBootloaderFinished : db "Finished Loading Second Stage Bootloader !" , 0
+SecondStageBootloaderStart : db "Starting to  Loading Second Stage Bootloader !", 0 
 
 ;-----							    -----;
 ;----- 		Main Function		-----;
@@ -99,11 +101,11 @@ main:
 				INT     0x10	
 
 				MOV SI, FirstMessageExecution ;Store string pointer to SI
-				CALL printfb	;Call print string procedure
+				CALL printfbln	;Call print string procedure
 				MOV SI,SecondStageBootloaderStart
-				CALL printfb
+				CALL printfbln
 				CALL Load2StageBootloader ; Load 2 stage Bootloader. Code Located at [load2.inc]
-				MOV SI, FirstMessageExecution ;Store string pointer to SI
+				MOV SI, SecondStageBootloaderFinished ;Store string pointer to SI
 				CALL printfb	;Call print string procedure
 				jmp $
 
