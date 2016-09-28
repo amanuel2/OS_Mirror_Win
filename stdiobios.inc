@@ -1,3 +1,16 @@
+%ifndef STDIO_BIOS_INC
+%define STDIO_BIOS_INC 1
+;----------------------------------------------;
+;
+; The BoneOS Bootloader STDIO.h
+; ------------------------------
+;
+;
+; Contributors : @amanuel2
+;
+;
+;----------------------------------------------;
+
 ;####################
 ;Printf BIOS Function
 ;####################
@@ -15,8 +28,10 @@ printfb_done:
 	RET ; Return from function
 	
 ;###############
-;	Clear Screen Function
+;Clear Screen Function
 ;###############
+
 clearscreen:
-		MOV     ax, 0x3 ; 03h Function -> Clear Screen BIOS Command
-		INT     0x10	; Interupt 10 BIOS 
+	MOV ax, 0x3 ; 03h Function -> Clear Screen BIOS Command
+	INT 0x10	; Interupt 10 BIOS 
+%endif	

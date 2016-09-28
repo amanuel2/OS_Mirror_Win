@@ -11,21 +11,39 @@
 
 [ ORG 0x0000 ]   ;We Will Set Registers to point to 0x7C00 Later
  
-[  BITS  16     ]; 16 bits real mode
+[  BITS  16  ]; 16 bits real mode
  
  
 
- jmp main ; Jump to Main Function of the Bootloader
+ JMP main ; Jump to Main Function of the Bootloader
 
  ;/////////////////////////////////////////////
  ;	Include Files
  ;////////////////////////////////////////////
  
-	 %include "stdiobios.inc"
+	 ;--------------------------------------
+	 ; 		STDIO.h
+	 ; I/O Functions. Such as printfb which 
+	 ; prints a string to the screen.
+	 ; 
+	 ; @functions:
+	 ;     printfb ARGS: <SI = String>
+	 ;	   clearscreen
+	 ;--------------------------------------
+	 %include "stdiobios.inc" 
+	 
+	 ;--------------------------------------
+	 ;		load2.asm
+	 ;	Loads 2 stage bootloader
+	 ;  Which then loads the kernel
+	 ; 	in 32 bit protected mode!
+	 ;	
+	 ;--------------------------------------
+	 %include "load2.inc"
  
 ;-----------------------------------------------
 ;-----------------------------------------------
-;  Label "Function" Declarations :)
+;  Label "Function" Main Declarations :)
 ; 
 ;	Bone Project
 ;----------------------------------------------
@@ -34,12 +52,14 @@
 
 	
 ;----------------------------------------------
-;  Label "Variable" Declaractions :)
+;  Label "Variable" Main Declaractions :)
 ;
 ;  Bone Project
 ;----------------------------------------------
 
 FirstMessageExecution : db "Stage 1 Bootloader Executing .  .  .", 0
+SecondStageBootloaderFinished : db "Finished Loading Second Stage Bootloader !", 0
+SecondStageBootloaderStart : db "Starting to  Loading Second Stage Bootloader !", 0
 
 ;-----							    -----;
 ;----- 		Main Function		-----;
@@ -78,6 +98,11 @@ main:
 				MOV     ax, 0x3
 				INT     0x10	
 
+				MOV SI, FirstMessageExecution ;Store string pointer to SI
+				CALL printfb	;Call print string procedure
+				MOV SI,SecondStageBootloaderStart
+				CALL printfb
+				CALL Load2StageBootloader ; Load 2 stage Bootloader. Code Located at [load2.inc]
 				MOV SI, FirstMessageExecution ;Store string pointer to SI
 				CALL printfb	;Call print string procedure
 				jmp $
