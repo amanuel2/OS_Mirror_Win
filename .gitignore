@@ -1,0 +1,18 @@
+#Commonly Ignored Files
+*.o
+*.out
+BoneOS.bin
+
+cross/
+ghost-i686-elf-tools/
+ISO/
+OS_Mirror/
+Tools/
+
+
+#Log File
+qemu.log
+
+#Ignored Folders
+cross/
+
