@@ -1,7 +1,7 @@
 ;----------------------------------------------;
 ;
-; The BoneOS Bootloader
-; ----------------------
+; The BoneOS Stage 1 Bootloader
+; -----------------------------
 ;
 ;
 ; Contributors : @amanuel2
@@ -12,10 +12,8 @@
 [ ORG 0x0000 ]   ;We Will Set Registers to point to 0x7C00 Later
  
 [  BITS  16  ]; 16 bits real mode
- 
- 
 
- JMP main ; Jump to Main Function of the Bootloader
+JMP main_first ; Jump to Main Function of the Bootloader
 
  ;/////////////////////////////////////////////
  ;	Include Files
@@ -33,16 +31,7 @@
 	 ;	   print_new_line
 	 ;--------------------------------------
 	 %include "stdiobios.inc" 
-	 
-	 ;--------------------------------------
-	 ;		load2.asm
-	 ;	Loads 2 stage bootloader
-	 ;  Which then loads the kernel
-	 ; 	in 32 bit protected mode!
-	 ;	
-	 ;--------------------------------------
-	 %include "load2.inc"
- 
+
 ;-----------------------------------------------
 ;-----------------------------------------------
 ;  Label "Function" Main Declarations :)
@@ -60,16 +49,15 @@
 ;----------------------------------------------
 
 FirstMessageExecution : db "Stage 1 Bootloader Executing .  .  .", 0
-SecondStageBootloaderFinished : db "Finished Loading Second Stage Bootloader !" , 0
-SecondStageBootloaderStart : db "Starting to  Loading Second Stage Bootloader !", 0 
+SECONDSTAGEXECUTION : db "Stage 2 Bootloader Executing . . .",0
 
-;-----							    -----;
-;----- 		Main Function		-----;
-;-----							    -----;
-               
+												;-----							    -----;
+												;----- 		Main Function			-----;
+												;-----							    -----;
 
-main:
-			   CLI ; Clear Interupts Before Manupulating Segments
+
+main_first:	 
+				CLI ; Clear Interupts Before Manupulating Segments
 				
 				;------------------------------
 				; Bootloader Repsonsibility To 
@@ -77,7 +65,8 @@ main:
 				; Segments (Except Code Segment)
 				;
 				;------------------------------
-				
+
+SEGMENTS:				
 				; 0x07C0 : 0x0 
 				MOV ax,0x07C0
 				MOV ds,ax ; Data Segment
@@ -89,33 +78,49 @@ main:
 				;--Setting Up The Stack
 				;--Stack Grows Downwards
 				;-------------------------------
-				
+
+STACK:				
 				MOV ax,0
-				MOV ss,ax ; Cant Directly Move to Stack Segment
+				MOV ss,ax ; Cant Directly MOVe to Stack Segment
 				MOV sp,0xFFFF ; Start Stackpointer from the top , growing downward
 				
 				
 				STI ; Restore Interupts
-			
 				MOV     ax, 0x3
 				INT     0x10	
+				
+SECONDSTAGE:		
+				MOV si, FirstMessageExecution
+				CALL printfbln		
+				
+				; Load stage 2 to memory.
+				MOV ah, 0x02
+				; Number of sectors to read.
+				MOV al, 1
+				; This may not be necessary as many BIOS set it up as an initial state.
+				MOV dl, 0x00
+				; Cylinder number.
+				MOV ch, 0
+				; Head number.
+				MOV dh, 0
+				; Starting sector number. 2 because 1 was already loaded.
+				MOV cl, 2
+				; Where to load to.
+				MOV bx, stage2
+				INT 0x13
 
-				MOV SI, FirstMessageExecution ;Store string pointer to SI
-				CALL printfbln	;Call print string procedure
-				MOV SI,SecondStageBootloaderStart
-				CALL printfbln
-				CALL Load2StageBootloader ; Load 2 stage Bootloader. Code Located at [load2.inc]
-				MOV SI, SecondStageBootloaderFinished ;Store string pointer to SI
-				CALL printfb	;Call print string procedure
-				jmp $
+				JMP stage2
 
-;----------------------------------------------;
-; Bootloader signature must be located
-; at bytes #511 and #512.
-; Fill with 0 in between.
-; $  = address of the current line
-; $$ = address of the 1st instruction
-;----------------------------------------------;
+				; Magic bytes.    
+				times ((0x200 - 2) - ($ - $$)) db 0x00
+				dw 0xAA55
 
-times 510 - ($-$$) db 0
-dw        0xaa55
+				
+;--------------------------------------
+;		load2.asm
+;	Second Stage Bootloader
+;   Which then loads the kernel
+; 	in 32 bit protected mode!
+;	
+;--------------------------------------
+%include "boot2.asm"
