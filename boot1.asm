@@ -51,6 +51,56 @@ JMP main_first ; Jump to Main Function of the Bootloader
 FirstMessageExecution : db "Stage 1 Bootloader Executing .  .  .", 0
 SECONDSTAGEXECUTION : db "Stage 2 Bootloader Executing . . .",0
 
+;**************************************************
+;	START OF SECOND STAGE BOOTLOADER VARIABLES
+
+;///////////////////////
+; GDT Needed for PMODE
+;///////////////////////
+gdt_start:                              ; Start of global descriptor table
+    gdt_null:                           ; Null descriptor chunk
+        dd 0x00
+        dd 0x00
+    gdt_code:                           ; Code descriptor chunk
+        dw 0xFFFF
+        dw 0x0000
+        db 0x00
+        db 0x9A
+        db 0xCF
+        db 0x00
+    gdt_data:                           ; Data descriptor chunk
+        dw 0xFFFF
+        dw 0x0000
+        db 0x00
+        db 0x92
+        db 0xCF
+        db 0x00
+    gdt_end:                            ; Bottom of table
+gdt_descriptor:                         ; Table descriptor
+    dw gdt_end - gdt_start - 1          ; Size of table
+	dd gdt_start+0x7c00                      ; Start point of table
+    
+gdt_codeSeg equ gdt_code - gdt_start    ; Offset of code segment from start
+gdt_dataSeg equ gdt_data - gdt_start    ; Offset of data segment from start
+
+;A20 Line Wait
+a20wait:
+		in   al,0x64 ; input from 0x64 port, goes to al register
+		test    al,2 ; compares al register with 2
+		jnz     a20wait ; If it is zero loop again
+		ret
+			 
+			 
+a20wait2:
+		in      al,0x64 ; input from 0x64 port, goes to al register
+		test    al,1 ; compares al register with 2
+		jz      a20wait2 ; If it is zero loop again
+		ret	
+
+
+;	END OF SECOND STAGE BOOTLOADER VARIABLES
+;**************************************************
+
 												;-----							    -----;
 												;----- 		Main Function			-----;
 												;-----							    -----;
@@ -74,31 +124,19 @@ SEGMENTS:
 				MOV fs,ax ; Extra Extra Segment (F Comes after E)
 				MOV gs,ax ; Extra Extra Extra Segment (G Comes after F)
 				
-				;-------------------------------
-				;--Setting Up The Stack
-				;--Stack Grows Downwards
-				;-------------------------------
-
-STACK:				
-				MOV ax,0
-				MOV ss,ax ; Cant Directly MOVe to Stack Segment
-				MOV sp,0xFFFF ; Start Stackpointer from the top , growing downward
-				
-				
 				STI ; Restore Interupts
+				;Clear screen
 				MOV     ax, 0x3
 				INT     0x10	
 				
 SECONDSTAGE:		
 				MOV si, FirstMessageExecution
-				CALL printfbln		
+				CALL puts16ln		
 				
 				; Load stage 2 to memory.
 				MOV ah, 0x02
 				; Number of sectors to read.
 				MOV al, 1
-				; This may not be necessary as many BIOS set it up as an initial state.
-				MOV dl, 0x00
 				; Cylinder number.
 				MOV ch, 0
 				; Head number.
