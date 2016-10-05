@@ -9,7 +9,7 @@
 ;
 ;----------------------------------------------;
 
-[ORG 0x7c00]   ;We Will Set Registers to point to 0x7C00 Later
+;[ORG 0x7c00]   ;We Will Set Registers to point to 0x7C00 Later
 
 [  BITS  16  ]; 16 bits real mode
 

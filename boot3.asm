@@ -20,17 +20,12 @@
           mov ss, ax
 
           mov esp, 0x090000 ; set up stack pointer
-
-		  push 'Z'
-		  call puts32char
-		  add esp,4
-		  
-		  push 'P'
-		  call puts32char
-		  add esp,4
-
+			
+			  call 0x9000
+			cli
+			loopend:                ;Infinite loop when finished
+				hlt
+			jmp loopend
           cli
           hlt
 
-        X_POS db 0
-        Y_POS db 0

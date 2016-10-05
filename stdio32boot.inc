@@ -16,7 +16,8 @@
 %define		LINES	25
 %define		CHAR_ATTRIB 14			; character attribute (White text on black background)
 
-
+        X_POS db 0
+        Y_POS db 0
 
 
 
