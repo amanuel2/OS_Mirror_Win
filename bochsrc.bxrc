@@ -5,4 +5,5 @@ floppya: 1_44=boot1.img, status=inserted
 boot: a
 log: bochsout.txt
 mouse: enabled=0
-display_library: win32, options="gui_debug" # use Win32 debugger gui
+ gdbstub: enabled=1, port=1024, text_base=0, data_base=0, bss_base=0
+display_library: win32#, options="gui_debug" # use Win32 debugger gui

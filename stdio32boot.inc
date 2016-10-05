@@ -38,11 +38,14 @@ puts32char: ;<char Character, void>
       inc edx                      ; Advance to next video cell
       mov BYTE [VIDMEM+edx*2], 0x00 | ''
 	  
-	  pop eax
 	  pop ecx
+	  pop eax
 	  
 	  add eax,1 ; 1 for text and other for color
 	  mov [Y_POS] , eax
+	  
+	 add ecx,1 ; 1 for text and other for color
+	 mov [X_POS] , eax
 	  
 	  RET	
 	 
