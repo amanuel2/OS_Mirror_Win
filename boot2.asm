@@ -10,13 +10,19 @@
 ;----------------------------------------------;
 
 
-stage2:
+
+  stage2:
 
     MOV si, SECONDSTAGEXECUTION
-    CALL puts16ln  
+    CALL printfbln  
+    ;-------------------
+    ;Load Kernel
+    ;-------------------
 
-	
-enable_A20: ; Enabling A20 Line For Full Memory
+
+
+    ; enable A20 gate
+    enable_A20: ; Enabling A20 Line For Full Memory
             cli ; Stop Interupts before doing so
 
             call    a20wait ; a20wait call
@@ -47,22 +53,23 @@ enable_A20: ; Enabling A20 Line For Full Memory
             call    a20wait ; When controller ready for command
             sti ; Enable Interrupts after enabling A20 Line
 
-GDT:
+
+    ;load a GDT
+    ; enter pmode
+    loadgdt:
         cli             ; disable int
         LGDT [gdt_descriptor]                   ; Load global descriptor table for protected mode
 
-P_MODE:
-        MOV EAX, CR0                            ; Move CR0 to GP register
-        OR EAX, 0x1                             ; Set first bit to switch to protected mode
-        MOV CR0, EAX                            ; Update CR0 from GP register to complete switch
-		
-JUMP_THIRD:
-        jmp 0x08:stage3+0x7c00 ; go to third stage bootloader
-		;Third Stage Bootloader
+        mov EAX, CR0                            ; Move CR0 to GP register
+        or EAX, 0x1                             ; Set first bit to switch to protected mode
+        mov CR0, EAX                            ; Update CR0 from GP register to complete switch
+
+
+
+        ;JMP gdt_codeSeg:start32                 ; Jump to start of 32-bit code
+        jmp 0x08:stage3 ; go to 32-bit code
+
 		%include "boot3.asm"
 
-
-    cli
-    hlt
 
     times ((0x400) - ($ - $$)) db 0x00

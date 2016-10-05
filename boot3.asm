@@ -12,6 +12,7 @@
 %include "stdio32boot.inc"
 
 [BITS 32]
+
         stage3:
           ; set segment registers
           mov ax, 0x10
@@ -20,11 +21,16 @@
 
           mov esp, 0x090000 ; set up stack pointer
 
+		  push 'Z'
+		  call puts32char
+		  add esp,4
 		  
-		  mov al,'X'
-		  mov ah,0x6F
-		  call puts32
-          ;call dword 0x08:0x01000 ; go to C code
+		  push 'P'
+		  call puts32char
+		  add esp,4
 
+          cli
+          hlt
 
-          jmp $
+        X_POS db 0
+        Y_POS db 0

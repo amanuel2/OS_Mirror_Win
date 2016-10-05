@@ -16,8 +16,35 @@
 %define		LINES	25
 %define		CHAR_ATTRIB 14			; character attribute (White text on black background)
 
+
+
+
+
+puts32char: ;<char Character, void>
+     
+	  mov BYTE bh,[esp+4]
+	  
+	 
+	  movzx eax, BYTE [X_POS]      ; EAX = column
+      movzx ecx, BYTE [Y_POS]      ; ECX = row
+	  push eax ; Retain previous info
+	  push ecx ; Retain Previous info
+	  
+	  mov edx, ecx                 ; EDX = row
+      imul edx, ecx, COLS          ; EDX = COLS * row
+      add edx,ecx                  ; EDX = COLS * row + column
+
+      mov BYTE [VIDMEM+edx*2], bh ; Write 'Z' to memory without
+                                       ; overwriting the current attribute
+      inc edx                      ; Advance to next video cell
+      mov BYTE [VIDMEM+edx*2], 0x00 | ''
+	  
+	  pop eax
+	  pop ecx
+	  
+	  add eax,2 ; 1 for text and other for color
+	  mov [X_POS] , eax
+	  
+	  RET	
+	 
 	
-puts32:
-	 MOV BYTE [0xB8000], al
-	 MOV BYTE [0xB8000+1], ah
-	 RET
