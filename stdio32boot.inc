@@ -1,6 +1,6 @@
 ;----------------------------------------------;
 ;
-; The BoneOS Bootloader STDIO.h 32
+; The BoneOS Bootloader STDIO.h 32 BITS
 ; ------------------------------
 ;
 ;
@@ -23,7 +23,6 @@
 puts32char: ;<char Character, void>
      
 	  mov BYTE bh,[esp+4]
-	  
 	 
 	  movzx eax, BYTE [X_POS]      ; EAX = column
       movzx ecx, BYTE [Y_POS]      ; ECX = row
@@ -42,8 +41,8 @@ puts32char: ;<char Character, void>
 	  pop eax
 	  pop ecx
 	  
-	  add eax,2 ; 1 for text and other for color
-	  mov [X_POS] , eax
+	  add eax,1 ; 1 for text and other for color
+	  mov [Y_POS] , eax
 	  
 	  RET	
 	 
