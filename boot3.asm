@@ -19,13 +19,15 @@
           mov ds, ax
           mov ss, ax
 
-          mov esp, 0x090000 ; set up stack pointer
+          mov esp, 0x09000 ; set up stack pointer
 			
-			  call 0x9000
-			cli
-			loopend:                ;Infinite loop when finished
-				hlt
-			jmp loopend
+		  ;push 'A'
+		  ;call puts32char
+		;	  call 0x9000
+		;	cli
+		;	loopend:                ;Infinite loop when finished
+		;		hlt
+		 ; jmp loopend
           cli
           hlt
 

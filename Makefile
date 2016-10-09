@@ -15,7 +15,19 @@ qemu_debug:
 	QEMU/qemu -drive format=raw,file=boot1.img,index=0,if=floppy  -s -S
 
 	
-
+compile_: 
+	ghost-i686-elf-tools/bin/i686-elf-gcc -g -m32 -c -ffreestanding -o kernel.o kernel.c -lgcc
+	ghost-i686-elf-tools/bin/i686-elf-ld -melf_i386 -T linker.ld -nostdlib --nmagic -o kernel.elf kernel.o
+	ghost-i686-elf-tools/bin/i686-elf-objcopy -O binary kernel.elf kernel.bin
+	"NASM/nasm.exe" boot1.asm  -o boot1.o
+	ghost-i686-elf-tools/bin/i686-elf-ld -melf_i386 -Ttext=0x7c00 -nostdlib --nmagic -o boot.elf boot.o
+	ghost-i686-elf-tools/bin/i686-elf-objcopy -O binary boot.elf boot.bin
+	"PartyCopy/dd.exe" if=/dev/zero of=disk.img bs=512 count=2880
+	"PartyCopy/dd.exe" if=boot.bin of=disk.img bs=512 conv=notrunc
+	"PartyCopy/dd.exe" if=kernel.bin of=disk.img bs=512 seek=1 conv=notrunc
+	"PartyCopy/dd.exe" if=boot.bin of=disk.img bs=512 conv=notrunc
+	"PartyCopy/dd.exe" if=kernel.bin of=disk.img bs=512 seek=1 conv=notrunc
+	QEMU/qemu -fda disk.img
 	
 compile_c:
 	ghost-i686-elf-tools/bin/i686-elf-gcc -g -m32 -c -ffreestanding -o kernel.o kernel.c -lgcc
