@@ -19,15 +19,26 @@
           mov ds, ax
           mov ss, ax
 
-          mov esp, 0x09000 ; set up stack pointer
+          mov esp, 0x090000 ; set up stack pointer
 			
-		  ;push 'A'
-		  ;call puts32char
-		;	  call 0x9000
-		;	cli
-		;	loopend:                ;Infinite loop when finished
-		;		hlt
-		 ; jmp loopend
+		 mov	eax, dword [ImageSize]
+  	 movzx	ebx, word [bpbBytesPerSector]
+  	 mul	ebx
+  	 mov	ebx, 4
+  	 div	ebx
+   	 cld
+   	 mov    esi, IMAGE_RMODE_BASE
+   	 mov	edi, IMAGE_PMODE_BASE
+   	 mov	ecx, eax
+   	 rep	movsd                   ; copy image to its protected mode address
+
+	;---------------------------------------;
+	;   Execute Kernel			;
+	;---------------------------------------;
+
+	jmp	CODE_DESC:IMAGE_PMODE_BASE; jump to our kernel! Note: This assumes Kernel's entry point is at 1 MB
+
           cli
           hlt
 
+       
