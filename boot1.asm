@@ -136,7 +136,7 @@ SECONDSTAGE:
                 ; Load stage 2 to memory.
                 MOV ah, 0x02
                 ; Number of sectors to read.
-                MOV al, 1
+                MOV al, 20
                 ; This may not be necessary as many BIOS set it up as an initial state.
                 MOV dl, 0x00
                 ; Cylinder number.

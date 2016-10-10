@@ -1,7 +1,12 @@
-ORG 0x9000
+;ORG 0x9000
 BITS 32
 
-start:
+k_main:
+	mov byte [0xB8000], 88
+	mov byte [0xB8000+1], 0x1B
 
+
+	mov byte [0xB8000+4], 89
+	mov byte [0xB8000+5], 0x1B
 	cli
 	hlt

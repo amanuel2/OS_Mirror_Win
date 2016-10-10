@@ -15,10 +15,6 @@
 
     MOV si, SECONDSTAGEXECUTION
     CALL printfbln  
-    ;-------------------
-    ;Load Kernel
-    ;-------------------
-
 
 
     ; enable A20 gate
@@ -73,3 +69,5 @@
 
 
     times ((0x400) - ($ - $$)) db 0x00
+	
+	%include "kernel.asm"
